@@ -1,9 +1,7 @@
 let CODES = [];
 
 function norm(s){
-  return String(s||"")
-    .toLowerCase()
-    .trim();
+  return String(s||"").toLowerCase().trim();
 }
 
 function normCode(s){
@@ -22,6 +20,7 @@ function starsBar(n){
 }
 
 function money(n){
+  if(n === null || n === undefined || n === "") return "Variable";
   return `$${Number(n||0).toLocaleString()}`;
 }
 
@@ -33,44 +32,48 @@ async function loadCodes(){
   return data;
 }
 
-function buildSearchHaystack(c){
+function buildHay(c){
   const parts = [
     `pc ${c.code}`,
     c.code,
     c.title,
+    c.category,
     c.description,
+    c.notes,
     ...(c.keywords || [])
   ].filter(Boolean).map(norm);
   return parts.join(" | ");
 }
 
-function score(queryTokens, c){
-  // simple relevance: direct code hit > title hit > keyword hit > partial hit
+function score(tokens, c){
   let s = 0;
-  const qCode = normCode(queryTokens.join(""));
+  const qCode = normCode(tokens.join(""));
   const cCode = normCode(c.code);
 
   if(qCode && cCode === qCode) s += 100;
 
   const title = norm(c.title);
+  const cat = norm(c.category);
   const kws = (c.keywords || []).map(norm);
 
-  for(const t of queryTokens){
+  for(const t of tokens){
     if(!t) continue;
+
     if(title === t) s += 40;
     if(title.includes(t)) s += 12;
+
+    if(cat.includes(t)) s += 6;
 
     if(kws.includes(t)) s += 18;
     if(kws.some(k => k.includes(t) || t.includes(k))) s += 6;
 
-    // code partial match
-    if(cCode.includes(normCode(t))) s += 10;
+    if(cCode.includes(normCode(t))) s += 10; // partial code match
   }
 
   return s;
 }
 
-function renderListItem(c, highlight=false){
+function renderListItem(c){
   const fine = money(c.fine);
   const stars = Number(c.stars||0);
   return `
@@ -79,9 +82,10 @@ function renderListItem(c, highlight=false){
       <div class="kpi">
         <div class="pill">Fine: <b>${fine}</b></div>
         <div class="pill">Stars: <span class="stars">${starsBar(stars)}</span> <b>${stars}</b></div>
-        <div class="pill">Jail: <b>${c.jail ?? 0} min</b></div>
+        <div class="pill">Jail: <b>${c.jail ?? "—"} min</b></div>
       </div>
       <div class="small">${c.description || ""}</div>
+      ${c.notes ? `<div class="small"><b>Notes:</b> ${c.notes}</div>` : ``}
     </div>
   `;
 }
@@ -92,10 +96,11 @@ function renderSelected(c){
       <div class="title">PC ${c.code} — ${c.title}</div>
       <div class="small">${c.description || ""}</div>
       <div class="kpi">
+        <div class="pill">Category: <b>${c.category || "—"}</b></div>
         <div class="pill">Fine: <b>${money(c.fine)}</b></div>
         <div class="pill">Stars: <span class="stars">${starsBar(c.stars)}</span> <b>${Number(c.stars||0)}</b></div>
-        <div class="pill">Jail: <b>${c.jail ?? 0} min</b></div>
       </div>
+      ${c.notes ? `<div class="small" style="margin-top:8px"><b>Notes:</b> ${c.notes}</div>` : ``}
       <div class="small" style="margin-top:8px">
         <b>Keywords:</b> ${(c.keywords||[]).join(", ") || "None"}
       </div>
@@ -105,6 +110,7 @@ function renderSelected(c){
 
 export async function initPenalPage(){
   const searchEl = document.getElementById("pcSearch");
+  const runBtn = document.getElementById("pcRun");     // NEW
   const sortEl = document.getElementById("pcSort");
   const clearBtn = document.getElementById("pcClear");
   const resultsEl = document.getElementById("pcResults");
@@ -122,10 +128,9 @@ export async function initPenalPage(){
     return;
   }
 
-  // Precompute haystacks for fast search
-  const H = CODES.map(c => ({ c, hay: buildSearchHaystack(c) }));
+  const H = CODES.map(c => ({ c, hay: buildHay(c) }));
 
-  function apply(){
+  function apply({scroll=false} = {}){
     const q = norm(searchEl.value);
     const tokens = q.split(/\s+/).filter(Boolean);
 
@@ -134,13 +139,13 @@ export async function initPenalPage(){
     if(q){
       list = H
         .map(x => ({...x, s: score(tokens, x.c)}))
-        .filter(x => x.s > 0 || x.hay.includes(q))
+        .filter(x => (x.s > 0) || x.hay.includes(q))
         .sort((a,b)=> (b.s||0) - (a.s||0));
     }else{
+      // show everything if empty query
       list = H.slice();
     }
 
-    // sorting
     const mode = sortEl.value;
     if(mode === "code"){
       list.sort((a,b)=> normCode(a.c.code).localeCompare(normCode(b.c.code)));
@@ -148,12 +153,13 @@ export async function initPenalPage(){
       list.sort((a,b)=> (Number(b.c.fine)||0) - (Number(a.c.fine)||0));
     }else if(mode === "stars_desc"){
       list.sort((a,b)=> (Number(b.c.stars)||0) - (Number(a.c.stars)||0));
-    } // relevance default keeps current
+    }
 
-    const shown = list.slice(0, 200).map(x => renderListItem(x.c)).join("");
-    resultsEl.innerHTML = shown || `<div class="muted">No results.</div>`;
+    const items = list.slice(0, 250);
+    resultsEl.innerHTML = items.length
+      ? items.map(x => renderListItem(x.c)).join("")
+      : `<div class="muted">No results for <b>${searchEl.value}</b>.</div>`;
 
-    // click handlers
     resultsEl.querySelectorAll(".item[data-pc]").forEach(el=>{
       el.addEventListener("click", ()=>{
         const code = el.getAttribute("data-pc");
@@ -161,17 +167,37 @@ export async function initPenalPage(){
         if(hit) selectedEl.innerHTML = renderSelected(hit);
       });
     });
+
+    if(scroll){
+      resultsEl.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
   }
 
-  searchEl.addEventListener("input", apply);
-  sortEl.addEventListener("change", apply);
+  // 🔥 ENTER KEY FIX (this is what you asked for)
+  searchEl.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){
+      e.preventDefault();
+      apply({scroll:true});
+    }
+  });
+
+  // Button click also triggers a “search”
+  if(runBtn){
+    runBtn.addEventListener("click", ()=>apply({scroll:true}));
+  }
+
+  // typing still updates live
+  searchEl.addEventListener("input", ()=>apply({scroll:false}));
+
+  sortEl.addEventListener("change", ()=>apply({scroll:false}));
+
   clearBtn.addEventListener("click", ()=>{
     searchEl.value = "";
     sortEl.value = "relevance";
     selectedEl.innerHTML = `<div class="muted">Click a charge from the list to see details.</div>`;
-    apply();
+    apply({scroll:false});
   });
 
-  // initial render (shows everything)
-  apply();
+  // Initial render: shows ALL charges so it’s never empty
+  apply({scroll:false});
 }
