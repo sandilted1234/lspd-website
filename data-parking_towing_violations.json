@@ -1,0 +1,106 @@
+{
+  "category": "Parking and Towing Violations",
+  "last_updated": "2026-01-22",
+  "violations": [
+    {
+      "code": "PT-01",
+      "title": "Illegal Parking",
+      "description": "Vehicle parked in a prohibited area or in violation of posted signage.",
+      "fine": 250,
+      "points": 0,
+      "tow": false,
+      "impound": false,
+      "notes": "Applies to sidewalks, no-parking zones, and restricted areas."
+    },
+    {
+      "code": "PT-02",
+      "title": "Blocking Traffic",
+      "description": "Vehicle obstructing the normal flow of traffic.",
+      "fine": 500,
+      "points": 1,
+      "tow": true,
+      "impound": false,
+      "notes": "Tow authorized if vehicle causes congestion or hazard."
+    },
+    {
+      "code": "PT-03",
+      "title": "Blocking Emergency Access",
+      "description": "Vehicle blocking emergency lanes, fire hydrants, or emergency exits.",
+      "fine": 750,
+      "points": 2,
+      "tow": true,
+      "impound": false,
+      "notes": "Immediate tow authorized."
+    },
+    {
+      "code": "PT-04",
+      "title": "Parking in a Red Zone",
+      "description": "Vehicle parked in a clearly marked red zone.",
+      "fine": 500,
+      "points": 1,
+      "tow": true,
+      "impound": false,
+      "notes": "Common near hospitals and government buildings."
+    },
+    {
+      "code": "PT-05",
+      "title": "Parking on Sidewalk",
+      "description": "Vehicle parked fully or partially on a sidewalk.",
+      "fine": 400,
+      "points": 0,
+      "tow": true,
+      "impound": false,
+      "notes": "Ensure sidewalk obstruction is documented."
+    },
+    {
+      "code": "PT-06",
+      "title": "Parking in Handicapped Spot",
+      "description": "Unauthorized vehicle parked in a handicapped-designated space.",
+      "fine": 1000,
+      "points": 2,
+      "tow": true,
+      "impound": false,
+      "notes": "No placard or plate required for enforcement."
+    },
+    {
+      "code": "PT-07",
+      "title": "Abandoned Vehicle",
+      "description": "Vehicle left unattended for an extended period without valid reason.",
+      "fine": 0,
+      "points": 0,
+      "tow": true,
+      "impound": true,
+      "notes": "Document time and location before towing."
+    },
+    {
+      "code": "PT-08",
+      "title": "Double Parking",
+      "description": "Vehicle parked alongside another parked vehicle.",
+      "fine": 350,
+      "points": 1,
+      "tow": true,
+      "impound": false,
+      "notes": "Common in high-density traffic areas."
+    },
+    {
+      "code": "PT-09",
+      "title": "Expired Parking Meter",
+      "description": "Vehicle parked at a metered space beyond the paid time.",
+      "fine": 150,
+      "points": 0,
+      "tow": false,
+      "impound": false,
+      "notes": "Tow only if repeated violations occur."
+    },
+    {
+      "code": "PT-10",
+      "title": "Unauthorized Parking on Private Property",
+      "description": "Vehicle parked on private property without permission.",
+      "fine": 300,
+      "points": 0,
+      "tow": true,
+      "impound": false,
+      "notes": "Owner request or signage required."
+    }
+  ]
+}
