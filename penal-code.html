@@ -1,19 +1,56 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Penal Code</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <title>Penal Code Lookup | LSPD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Extra page-specific polish */
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      background: #0f1a2b;
+      border: 1px solid #223458;
+      color: #fff;
+      border-radius: 6px;
+    }
+
+    .pill {
+      background: #12213b;
+      border: 1px solid #1f335a;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .stars {
+      color: gold;
+      letter-spacing: 1px;
+    }
+  </style>
 </head>
+
 <body>
+  <!-- TOP NAV -->
   <div class="topbar">
     <div class="nav container">
-      <div class="brand">LSPD Portal <span class="badge">Grand RP</span></div>
+      <div class="brand">
+        LSPD Portal <span class="badge">Grand RP</span>
+      </div>
       <div class="links">
         <a href="index.html">Home</a>
         <a href="on-duty.html">On Duty</a>
-        <a href="penal-code.html">Penal Code</a>
+        <a class="active" href="penal-code.html">Penal Code</a>
         <a href="situation-analyzer.html">Situation Analyzer</a>
         <a href="traffic-parking.html">Traffic & Parking</a>
         <a href="arrest-guide.html">Arrest Guide</a>
@@ -22,55 +59,79 @@
     </div>
   </div>
 
+  <!-- CONTENT -->
   <div class="container">
     <div class="hero">
       <h1>Penal Code Lookup</h1>
-      <p>Search by <b>PC code</b>, <b>charge name</b>, or <b>keywords</b>. Click a result to view details.</p>
+      <p>
+        Search by <b>PC code</b>, <b>charge name</b>, or <b>keywords</b>.
+        Press <b>Enter</b> or click <b>Search</b>.
+      </p>
     </div>
 
+    <!-- SEARCH + SELECTED -->
     <div class="grid two">
+      <!-- SEARCH PANEL -->
       <div class="card">
         <h2>Search</h2>
 
-        <input id="pcSearch" class="input" placeholder="Search: 2.10.6, evading, cocaine, weapon..." />
+        <div class="row">
+          <input
+            id="pcSearch"
+            class="input"
+            placeholder="PC 2.10.6, evading, drugs, robbery..."
+          />
+          <button id="pcRun" class="btn">Search</button>
+        </div>
 
-        <div class="row" style="margin-top:10px">
+        <div style="margin-top: 10px">
           <select id="pcSort">
             <option value="relevance">Sort: Relevance</option>
             <option value="code">Sort: Code</option>
             <option value="fine_desc">Sort: Fine (high → low)</option>
             <option value="stars_desc">Sort: Stars (high → low)</option>
           </select>
+        </div>
 
+        <div class="row" style="margin-top: 10px">
           <button id="pcClear" class="btn ghost">Clear</button>
         </div>
 
-        <div class="muted" style="margin-top:10px">
-          Tip: Type partial words like <b>evad</b> or <b>coc</b>.
+        <div class="muted" style="margin-top: 10px">
+          Tip: Type partial words like <b>evad</b>, <b>coc</b>, <b>rob</b>.
         </div>
 
-        <div id="pcDebug" class="muted" style="margin-top:10px"></div>
+        <div id="pcDebug" class="muted" style="margin-top: 10px"></div>
       </div>
 
+      <!-- SELECTED CHARGE -->
       <div class="card">
         <h2>Selected Charge</h2>
-        <div id="pcSelected" class="muted">Click a charge from the list to see details.</div>
+        <div id="pcSelected" class="muted">
+          Click a charge from the list to view details.
+        </div>
       </div>
     </div>
 
-    <div class="card" style="margin-top:16px">
+    <!-- RESULTS -->
+    <div class="card" style="margin-top: 16px">
       <h2>Results</h2>
       <div id="pcResults" class="result"></div>
     </div>
 
-    <div class="footer-note">Data file: <b>assets/data/penal_codes.json</b></div>
+    <div class="footer-note">
+      Penal data loaded from <b>assets/data/penal_codes.json</b>
+    </div>
   </div>
 
+  <!-- SCRIPTS -->
   <script type="module">
     import { setActiveNav } from "./assets/js/common.js";
     import { initPenalPage } from "./assets/js/penal.js";
+
     setActiveNav();
     initPenalPage();
   </script>
 </body>
 </html>
+
