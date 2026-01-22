@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LSPD Penal Code Lookup</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Penal Code <span>⭐</span> Lookup</h1>
+    <p>Type a penal code (e.g. <code>PC 2.10.6</code>) and press Search — results will show below.</p>
+
+    <div class="section">
+      <div class="search-bar">
+        <input type="text" id="penalInput" placeholder="Enter penal code (e.g. PC 2.10.6)" />
+        <button class="btn btn-blue" onclick="searchCode()">Search</button>
+      </div>
+      <p class="tip">Tip: You can enter with or without the <code>PC</code> prefix.</p>
+    </div>
+
+    <div class="section text-center">
+      <h3>Duty Tools</h3>
+      <button class="btn btn-blue" id="startDuty">START DUTY</button>
+      <button class="btn btn-red" id="endDuty">END DUTY</button>
+      <p><strong>Shift Timer:</strong> <span id="shiftTimer">00:00:00</span></p>
+    </div>
+
+    <div class="section">
+      <h3>Situation Analyzer</h3>
+      <textarea id="situationInput" placeholder="e.g. Suspect evading in a stolen auto, had cocaine and a prohibited weapon..."></textarea>
+      <button class="btn btn-blue" style="width:100%;margin-top:10px;">Analyze Situation</button>
+    </div>
+
+    <p class="text-center" style="margin-top:20px;font-size:0.9em;color:#94a3b8;">
+      Built from your LEO Penal Code Guide.
+    </p>
+  </div>
+</body>
+</html>
