@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Situation Analyzer • LSPD Portal</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="color-scheme" content="dark" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="badge"></div>
+        <div class="brand-text">
+          <div class="brand-title">LSPD</div>
+          <div class="brand-subtitle">Situation Analyzer</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="search">
+          <input id="globalSearchInput" type="search" placeholder="Search…" autocomplete="off" />
+          <button id="globalSearchBtn" class="btn btn-ghost">⌕</button>
+        </div>
+        <button id="openDutyPanelBtn" class="btn btn-primary">On Duty</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <nav class="nav">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="on-duty.html">On Duty</a>
+        <a class="nav-link active" href="situation-analyzer.html">Situation Analyzer</a>
+        <a class="nav-link" href="penal-code.html">Penal Code Lookup</a>
+        <a class="nav-link" href="traffic-parking.html">Traffic & Parking</a>
+        <a class="nav-link" href="arrest-guide.html">Arrest Guide</a>
+        <a class="nav-link" href="prohibited-items.html">Prohibited Items</a>
+        <a class="nav-link" href="plate-parking.html">Plate Parking Locations</a>
+        <a class="nav-link" href="images-maps.html">Images & Maps</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="pill" id="dutyPill">OFF DUTY</div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Analyzer</div>
+          <div class="muted small">Answer checkboxes — get suggested steps + related charges/items.</div>
+        </div>
+        <div class="card-body">
+          <div id="analyzerForm" class="analyzer"></div>
+          <div class="row gap wrap top-space">
+            <button class="btn btn-primary" id="runAnalyzerBtn">Run</button>
+            <button class="btn btn-ghost" id="resetAnalyzerBtn">Reset</button>
+            <a class="btn btn-ghost" href="penal-code.html">Open Penal Code</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Recommendations</div>
+        </div>
+        <div class="card-body">
+          <div id="analyzerOutput" class="results"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Search Drawer -->
+  <div class="drawer" id="searchDrawer" aria-hidden="true">
+    <div class="drawer-backdrop" data-close-drawer></div>
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <div class="drawer-title">Search Results</div>
+        <button class="btn btn-ghost" data-close-drawer>✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="muted small" id="searchMeta"></div>
+        <div id="searchResults" class="results"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duty Modal -->
+  <div class="modal" id="dutyModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel card">
+      <div class="card-header">
+        <div class="card-title">On Duty Panel</div>
+        <button class="btn btn-ghost" data-close-modal>✕</button>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <label class="field"><span>Callsign</span><input id="dutyCallsign" /></label>
+          <label class="field"><span>Unit</span><input id="dutyUnit" /></label>
+          <label class="field"><span>Role</span><input id="dutyRole" /></label>
+          <label class="field"><span>Status Note</span><input id="dutyNote" /></label>
+        </div>
+        <div class="row gap">
+          <button class="btn btn-primary" id="toggleDutyBtn">Toggle Duty</button>
+          <button class="btn btn-ghost" id="saveDutyBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/search.js"></script>
+  <script src="assets/js/analyzer.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Traffic & Parking • LSPD Portal</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="color-scheme" content="dark" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="badge"></div>
+        <div class="brand-text">
+          <div class="brand-title">LSPD</div>
+          <div class="brand-subtitle">Traffic & Parking</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="search">
+          <input id="globalSearchInput" type="search" placeholder="Search…" autocomplete="off" />
+          <button id="globalSearchBtn" class="btn btn-ghost">⌕</button>
+        </div>
+        <button id="openDutyPanelBtn" class="btn btn-primary">On Duty</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <nav class="nav">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="on-duty.html">On Duty</a>
+        <a class="nav-link" href="situation-analyzer.html">Situation Analyzer</a>
+        <a class="nav-link" href="penal-code.html">Penal Code Lookup</a>
+        <a class="nav-link active" href="traffic-parking.html">Traffic & Parking</a>
+        <a class="nav-link" href="arrest-guide.html">Arrest Guide</a>
+        <a class="nav-link" href="prohibited-items.html">Prohibited Items</a>
+        <a class="nav-link" href="plate-parking.html">Plate Parking Locations</a>
+        <a class="nav-link" href="images-maps.html">Images & Maps</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="pill" id="dutyPill">OFF DUTY</div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Quick Reference</div>
+        </div>
+        <div class="card-body">
+          <div class="row gap wrap">
+            <input id="trafficSearch" class="input" placeholder="Search towing, citations, parking rules…" />
+            <select id="trafficSection" class="input">
+              <option value="">All sections</option>
+            </select>
+          </div>
+          <div class="top-space">
+            <div id="trafficResults" class="results"></div>
+          </div>
+          <div class="muted small top-space">Data source: <code>data/traffic_parking.json</code></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Search Drawer -->
+  <div class="drawer" id="searchDrawer" aria-hidden="true">
+    <div class="drawer-backdrop" data-close-drawer></div>
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <div class="drawer-title">Search Results</div>
+        <button class="btn btn-ghost" data-close-drawer>✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="muted small" id="searchMeta"></div>
+        <div id="searchResults" class="results"></div>
+      </div>
+    </div>

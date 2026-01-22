@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>On Duty • LSPD Portal</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="color-scheme" content="dark" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="badge"></div>
+        <div class="brand-text">
+          <div class="brand-title">LSPD</div>
+          <div class="brand-subtitle">On Duty</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-ghost" href="index.html">Home</a>
+        <button id="openDutyPanelBtn" class="btn btn-primary">Open Panel</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <nav class="nav">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link active" href="on-duty.html">On Duty</a>
+        <a class="nav-link" href="situation-analyzer.html">Situation Analyzer</a>
+        <a class="nav-link" href="penal-code.html">Penal Code Lookup</a>
+        <a class="nav-link" href="traffic-parking.html">Traffic & Parking</a>
+        <a class="nav-link" href="arrest-guide.html">Arrest Guide</a>
+        <a class="nav-link" href="prohibited-items.html">Prohibited Items</a>
+        <a class="nav-link" href="plate-parking.html">Plate Parking Locations</a>
+        <a class="nav-link" href="images-maps.html">Images & Maps</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="pill" id="dutyPill">OFF DUTY</div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Duty Dashboard</div>
+          <div class="row gap">
+            <button class="btn btn-ghost btn-sm" id="copyDutyBtn">Copy Summary</button>
+            <button class="btn btn-primary btn-sm" id="toggleDutyBtnInline">Toggle Duty</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="kv kv-2">
+            <div class="k">Status</div><div class="v" id="dutyStatusText">—</div>
+            <div class="k">Callsign</div><div class="v" id="dutyCallsignText">—</div>
+            <div class="k">Unit</div><div class="v" id="dutyUnitText">—</div>
+            <div class="k">Role</div><div class="v" id="dutyRoleText">—</div>
+            <div class="k">Note</div><div class="v" id="dutyNoteText">—</div>
+            <div class="k">Last Updated</div><div class="v" id="dutyUpdatedText">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card tile">
+          <div class="tile-title">Bodycam / Radio</div>
+          <div class="tile-sub">Quick commands</div>
+          <div class="row gap wrap">
+            <button class="btn btn-ghost" data-copy="10-8 | Available for calls">10-8</button>
+            <button class="btn btn-ghost" data-copy="10-7 | Out of service">10-7</button>
+            <button class="btn btn-ghost" data-copy="Requesting 32 | Supervisor">Request 32</button>
+            <button class="btn btn-ghost" data-copy="Shots fired | Requesting backup">Shots Fired</button>
+            <button class="btn btn-ghost" data-copy="Pursuit initiated | Vehicle description:">Pursuit</button>
+          </div>
+          <div class="muted small">Click to copy to clipboard.</div>
+        </div>
+
+        <a class="tile card" href="penal-code.html">
+          <div class="tile-title">Penal Code</div>
+          <div class="tile-sub">Add charges + total fine/jail</div>
+        </a>
+
+        <a class="tile card" href="situation-analyzer.html">
+          <div class="tile-title">Situation Analyzer</div>
+          <div class="tile-sub">Checklist-based recommendations</div>
+        </a>
+      </section>
+    </main>
+  </div>
+
+  <!-- Duty Modal shared -->
+  <div class="modal" id="dutyModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel card">
+      <div class="card-header">
+        <div class="card-title">On Duty Panel</div>
+        <button class="btn btn-ghost" data-close-modal>✕</button>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <label class="field">
+            <span>Callsign</span>
+            <input id="dutyCallsign" placeholder="e.g., 2A-12" />
+          </label>
+          <label class="field">
+            <span>Unit</span>
+            <input id="dutyUnit" placeholder="e.g., ADAM / LINCOLN / METRO" />
+          </label>
+          <label class="field">
+            <span>Role</span>
+            <input id="dutyRole" placeholder="e.g., Patrol / Supervisor / K9" />
+          </label>
+          <label class="field">
+            <span>Status Note</span>
+            <input id="dutyNote" placeholder="e.g., 10-8 / responding / report writing" />
+          </label>
+        </div>
+
+        <div class="row gap">
+          <button class="btn btn-primary" id="toggleDutyBtn">Toggle Duty</button>
+          <button class="btn btn-ghost" id="saveDutyBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    // Page-specific behavior
+    (function(){
+      const copyBtns = document.querySelectorAll('[data-copy]');
+      copyBtns.forEach(b => b.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(b.getAttribute('data-copy') || '');
+          window.LSPD_UI.toast('Copied');
+        } catch {
+          window.LSPD_UI.toast('Copy failed');
+        }
+      }));
+
+      document.getElementById('toggleDutyBtnInline')?.addEventListener('click', () => {
+        window.LSPD_APP.toggleDuty();
+      });
+
+      document.getElementById('copyDutyBtn')?.addEventListener('click', async () => {
+        const s = window.LSPD_STORE.getDuty();
+        const text = `Status: ${s.onDuty ? 'On Duty' : 'Off Duty'} | Callsign: ${s.callsign||'—'} | Unit: ${s.unit||'—'} | Role: ${s.role||'—'} | Note: ${s.note||'—'}`;
+        try { await navigator.clipboard.writeText(text); window.LSPD_UI.toast('Summary copied'); }
+        catch { window.LSPD_UI.toast('Copy failed'); }
+      });
+
+      window.LSPD_APP.renderDutyEverywhere?.();
+    })();
+  </script>
+</body>
+</html>
