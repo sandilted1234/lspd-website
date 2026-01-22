@@ -1,0 +1,38 @@
+[
+  {
+    "code": "2.10.6",
+    "title": "Evading Arrest",
+    "fine": 5000,
+    "stars": 3,
+    "jail": 10,
+    "keywords": ["evading", "evade", "flee", "fled", "pursuit", "ran", "running"],
+    "description": "Fleeing from an officer to avoid lawful detention or arrest."
+  },
+  {
+    "code": "2.10.1",
+    "title": "Resisting Arrest",
+    "fine": 2500,
+    "stars": 2,
+    "jail": 5,
+    "keywords": ["resisting", "resist", "fight", "struggle", "obstruct"],
+    "description": "Obstructing or resisting lawful arrest."
+  },
+  {
+    "code": "3.20.2",
+    "title": "Possession of Cocaine",
+    "fine": 8000,
+    "stars": 4,
+    "jail": 15,
+    "keywords": ["cocaine", "drugs", "narcotics", "powder"],
+    "description": "Unlawful possession of cocaine."
+  },
+  {
+    "code": "4.10.3",
+    "title": "Possession of Illegal Firearm",
+    "fine": 12000,
+    "stars": 5,
+    "jail": 20,
+    "keywords": ["illegal firearm", "illegal gun", "weapon", "pistol", "rifle"],
+    "description": "Possession of a prohibited or unlicensed firearm."
+  }
+]
