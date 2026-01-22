@@ -1,0 +1,6 @@
+[
+  { "code":"TP-01", "title":"Illegal Parking", "fine":500 },
+  { "code":"TP-02", "title":"Blocking Driveway", "fine":1000 },
+  { "code":"TP-03", "title":"Fire Lane Violation", "fine":1500 },
+  { "code":"TP-04", "title":"Tow Requested", "fine":0 }
+]
