@@ -1,23 +1,159 @@
-// assets/js/situation-analyzer.js
-import { withBasePath } from "./basepath.js";
+let penalData = [];
 
-const els = {
-  input: document.querySelector("#saSearch"),
-  results: document.querySelector("#saResults"),
-  status: document.querySelector("#saStatus"),
-  tags: document.querySelector("#saTags"), // optional container for quick filters
-};
+const elSituation = document.getElementById("situationInput");
+const elAnalysis = document.getElementById("analysisBox");
+const elCopy = document.getElementById("btnCopy");
+const elBack = document.getElementById("btnBack");
 
-let SA_DATA = [];
-let LOADED = false;
-let ACTIVE_TAG = "all";
+const elPcSearch = document.getElementById("pcSearch");
+const elPcResults = document.getElementById("pcResults");
+const elPcCount = document.getElementById("pcCount");
+const elClear = document.getElementById("btnClear");
+const elReload = document.getElementById("btnReload");
 
-function normalize(str) {
-  return (str ?? "").toString().trim().toLowerCase();
+// --- Back button
+elBack.addEventListener("click", () => {
+  // safer than history.back() if user opened directly
+  if (window.history.length > 1) window.history.back();
+  else window.location.href = "index.html";
+});
+
+// --- Quick fill chips
+document.querySelectorAll(".chip").forEach(btn => {
+  btn.addEventListener("click", () => {
+    elSituation.value = btn.dataset.fill || "";
+    elSituation.focus();
+    analyzeSituation(elSituation.value);
+  });
+});
+
+// --- Situation analyzer
+elSituation.addEventListener("input", () => analyzeSituation(elSituation.value));
+
+function analyzeSituation(text) {
+  const t = (text || "").toLowerCase().trim();
+  if (!t) {
+    elAnalysis.textContent = "Awaiting input...";
+    return;
+  }
+
+  const lines = [];
+  lines.push("Dispatch Summary:");
+  lines.push(`• ${text}`);
+  lines.push("");
+
+  // Simple logic (customize later)
+  if (t.includes("shots") || t.includes("gun") || t.includes("fired")) {
+    lines.push("Threat Level: HIGH");
+    lines.push("Suggested Response: CODE 3, establish perimeter, request additional units.");
+    lines.push("Notes: Consider EMS standby and suspect description / direction of travel.");
+  } else if (t.includes("pursuit") || t.includes("10-80") || t.includes("chase")) {
+    lines.push("Threat Level: MEDIUM-HIGH");
+    lines.push("Suggested Response: CODE 3, comms on primary, callouts, coordinate spikes if approved.");
+  } else if (t.includes("robbery")) {
+    lines.push("Threat Level: MEDIUM");
+    lines.push("Suggested Response: CODE 2/3 depending on weapon info, contain exits, attempt negotiation if hostage risk.");
+  } else if (t.includes("officer down")) {
+    lines.push("Threat Level: CRITICAL");
+    lines.push("Suggested Response: ALL AVAILABLE UNITS, CODE 3, secure scene, EMS immediate, request supervisor.");
+  } else {
+    lines.push("Threat Level: UNKNOWN");
+    lines.push("Suggested Response: Gather details (weapons, suspects, vehicles, injuries) and escalate as needed.");
+  }
+
+  elAnalysis.textContent = lines.join("\n");
 }
 
+// Copy analysis
+elCopy.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(elAnalysis.textContent);
+    elCopy.textContent = "Copied!";
+    setTimeout(() => (elCopy.textContent = "Copy"), 900);
+  } catch {
+    alert("Clipboard blocked by browser. Select and copy manually.");
+  }
+});
+
+// --- Penal Code data load
+async function loadPenalData() {
+  try {
+    const res = await fetch("assets/data/penal_codes.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to load penal data");
+    penalData = await res.json();
+    renderPenalResults("");
+  } catch (err) {
+    elPcResults.innerHTML = `
+      <div class="pc-item">
+        <div class="pc-title">Could not load penal_codes.json</div>
+        <div class="pc-meta">
+          <span class="badge">Check file path</span>
+          <span class="badge">assets/data/penal_codes.json</span>
+        </div>
+      </div>`;
+    elPcCount.textContent = "0 results";
+  }
+}
+
+function renderPenalResults(query) {
+  const q = (query || "").toLowerCase().trim();
+
+  const list = !q
+    ? penalData.slice(0, 20) // show first 20 when empty
+    : penalData.filter(item => {
+        const code = String(item.code || "").toLowerCase();
+        const title = String(item.title || "").toLowerCase();
+        const desc = String(item.description || "").toLowerCase();
+        return code.includes(q) || title.includes(q) || desc.includes(q);
+      }).slice(0, 50);
+
+  elPcCount.textContent = `${list.length} result${list.length === 1 ? "" : "s"}`;
+
+  if (!list.length) {
+    elPcResults.innerHTML = `
+      <div class="pc-item">
+        <div class="pc-title">No matching penal codes.</div>
+        <div class="pc-meta"><span class="badge">Try a different keyword</span></div>
+      </div>`;
+    return;
+  }
+
+  elPcResults.innerHTML = list.map(item => {
+    const fine = item.fine ?? "—";
+    const jail = item.jail ?? "—";
+    const felony = item.felony ? "Felony" : "Misdemeanor";
+    return `
+      <div class="pc-item">
+        <div class="pc-top">
+          <div>
+            <div class="pc-code">${escapeHtml(item.code)}</div>
+            <div class="pc-title">${escapeHtml(item.title)}</div>
+          </div>
+          <div class="pc-meta">
+            <span class="badge">${felony}</span>
+            <span class="badge">Fine: ${escapeHtml(String(fine))}</span>
+            <span class="badge">Jail: ${escapeHtml(String(jail))}</span>
+          </div>
+        </div>
+        ${item.description ? `<div class="muted" style="margin-top:8px">${escapeHtml(item.description)}</div>` : ""}
+      </div>
+    `;
+  }).join("");
+}
+
+elPcSearch.addEventListener("input", () => renderPenalResults(elPcSearch.value));
+
+elClear.addEventListener("click", () => {
+  elPcSearch.value = "";
+  renderPenalResults("");
+  elPcSearch.focus();
+});
+
+elReload.addEventListener("click", () => loadPenalData());
+
+// Basic HTML escaping
 function escapeHtml(str) {
-  return (str ?? "").toString()
+  return String(str)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -25,179 +161,5 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-function coerceToArray(json) {
-  if (Array.isArray(json)) return json;
-  if (json && Array.isArray(json.situations)) return json.situations;
-  if (json && Array.isArray(json.data)) return json.data;
-  if (json && Array.isArray(json.items)) return json.items;
-  return [];
-}
-
-/**
- * Flexible mapping:
- * expects common fields like:
- * { title, summary, steps, charges, tags, risk }
- */
-function mapEntry(raw) {
-  const title = raw.title ?? raw.name ?? raw.scenario ?? "";
-  const summary = raw.summary ?? raw.description ?? raw.details ?? "";
-  const steps = raw.steps ?? raw.procedure ?? raw.actions ?? [];
-  const charges = raw.charges ?? raw.recommended_charges ?? raw.penal ?? [];
-  const tags = raw.tags ?? raw.categories ?? raw.type ?? [];
-  const risk = raw.risk ?? raw.level ?? raw.threat ?? "";
-
-  return {
-    title,
-    summary,
-    steps: Array.isArray(steps) ? steps : (steps ? [steps] : []),
-    charges: Array.isArray(charges) ? charges : (charges ? [charges] : []),
-    tags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
-    risk,
-    _raw: raw,
-  };
-}
-
-function setStatus(msg, kind = "info") {
-  if (!els.status) return;
-  els.status.textContent = msg;
-  els.status.dataset.kind = kind;
-}
-
-function uniqueTags(items) {
-  const set = new Set();
-  items.forEach((x) => (x.tags || []).forEach((t) => set.add(normalize(t))));
-  return Array.from(set).filter(Boolean).sort();
-}
-
-function renderTags(tags) {
-  if (!els.tags) return;
-  const all = ["all", ...tags];
-
-  els.tags.innerHTML = all
-    .map((t) => {
-      const label = t === "all" ? "All" : t;
-      const active = t === ACTIVE_TAG ? "active" : "";
-      return `<button class="tag-btn ${active}" data-tag="${escapeHtml(t)}">${escapeHtml(label)}</button>`;
-    })
-    .join("");
-
-  els.tags.querySelectorAll("button[data-tag]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      ACTIVE_TAG = btn.dataset.tag || "all";
-      renderTags(tags); // re-render active state
-      runSearch();
-    });
-  });
-}
-
-function matchesTag(item) {
-  if (ACTIVE_TAG === "all") return true;
-  const tags = (item.tags || []).map(normalize);
-  return tags.includes(ACTIVE_TAG);
-}
-
-function runSearch() {
-  const query = normalize(els.input?.value || "");
-
-  if (!LOADED) {
-    setStatus("Loading situation database…", "info");
-    if (els.results) els.results.innerHTML = "";
-    return;
-  }
-
-  const filtered = SA_DATA.filter((x) => {
-    if (!matchesTag(x)) return false;
-
-    if (!query) return true;
-
-    const hay = normalize(
-      `${x.title} ${x.summary} ${(x.steps || []).join(" ")} ${(x.charges || []).join(" ")} ${(x.tags || []).join(" ")} ${x.risk}`
-    );
-    return hay.includes(query);
-  });
-
-  renderResults(filtered, query);
-}
-
-function renderResults(list, query) {
-  if (!els.results) return;
-
-  if (!query && ACTIVE_TAG === "all") {
-    setStatus("Search situations (e.g., 'traffic stop', 'shots fired', 'robbery').", "info");
-  } else {
-    setStatus(`Showing ${list.length} result(s).`, list.length ? "ok" : "warn");
-  }
-
-  if (list.length === 0) {
-    els.results.innerHTML = "";
-    return;
-  }
-
-  els.results.innerHTML = list
-    .slice(0, 80)
-    .map((x) => {
-      const title = escapeHtml(x.title);
-      const summary = escapeHtml(x.summary);
-      const risk = escapeHtml(x.risk);
-
-      const tags = (x.tags || [])
-        .map((t) => `<span class="pill">${escapeHtml(t)}</span>`)
-        .join("");
-
-      const steps = (x.steps || [])
-        .map((s) => `<li>${escapeHtml(s)}</li>`)
-        .join("");
-
-      const charges = (x.charges || [])
-        .map((c) => `<li>${escapeHtml(c)}</li>`)
-        .join("");
-
-      return `
-        <details class="result-card">
-          <summary class="result-title">
-            ${title || "(Untitled Situation)"}
-            ${risk ? `<span class="pill danger">${risk}</span>` : ""}
-          </summary>
-          ${tags ? `<div class="result-pills">${tags}</div>` : ""}
-          ${summary ? `<div class="result-desc">${summary}</div>` : ""}
-          ${steps ? `<div class="block"><div class="block-title">Procedure</div><ol>${steps}</ol></div>` : ""}
-          ${charges ? `<div class="block"><div class="block-title">Suggested Charges</div><ul>${charges}</ul></div>` : ""}
-        </details>
-      `;
-    })
-    .join("");
-}
-
-async function loadSituations() {
-  try {
-    setStatus("Loading situation database…", "info");
-
-    const url = withBasePath("assets/data/situations.json");
-
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status} while fetching ${url}`);
-
-    const json = await res.json();
-    const arr = coerceToArray(json);
-
-    SA_DATA = arr.map(mapEntry).filter((x) => x.title || x.summary);
-    LOADED = true;
-
-    setStatus(`Situations loaded (${SA_DATA.length} entries).`, "ok");
-    renderTags(uniqueTags(SA_DATA));
-    runSearch(); // ✅ run AFTER data load
-  } catch (err) {
-    LOADED = false;
-    console.error("[SituationAnalyzer] Load failed:", err);
-    setStatus("Situation database failed to load. Check Console + Network for the JSON request.", "error");
-    if (els.results) els.results.innerHTML = "";
-  }
-}
-
-function bind() {
-  if (!els.input) return;
-  els.input.addEventListener("input", runSearch);
-}
-
-loadSituations();
-bind();
+// init
+loadPenalData();
