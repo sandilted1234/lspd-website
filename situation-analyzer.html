@@ -1,138 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>LSPD Situation Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Dark LSPD Style -->
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-    }
-
-    header {
-      padding: 16px;
-      background: #020617;
-      border-bottom: 1px solid #1e293b;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    h1 {
-      margin-bottom: 16px;
-    }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      background: #020617;
-      color: #e5e7eb;
-      outline: none;
-    }
-
-    .status-text {
-      margin: 12px 0;
-      font-size: 14px;
-    }
-
-    .tag-bar {
-      margin-bottom: 12px;
-    }
-
-    .tag-btn {
-      background: #1e293b;
-      color: #e5e7eb;
-      border: none;
-      padding: 6px 12px;
-      margin: 4px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .tag-btn.active {
-      background: #2563eb;
-    }
-
-    .results-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .result-card {
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 14px;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .pill {
-      display: inline-block;
-      background: #1e293b;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      margin-right: 6px;
-      margin-top: 6px;
-    }
-
-    .pill.danger {
-      background: #7f1d1d;
-    }
-
-    .block {
-      margin-top: 10px;
-    }
-
-    .block-title {
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LSPD — Situation Analyzer</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 
 <body>
-  <header>
-    <strong>Los Santos Police Department</strong>
+  <!-- NAVBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-title">Los Santos Police Department</div>
+      <div class="brand-sub">Operations Portal</div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="duty.html">On Duty</a>
+      <a class="nav-link active" href="situation.html">Situation</a>
+      <a class="nav-link" href="penal.html">Penal Code</a>
+    </nav>
+
+    <div class="nav-right">
+      <button class="btn ghost" id="btnBack" type="button">← Back</button>
+    </div>
   </header>
 
-  <main>
-    <h1>Situation Analyzer</h1>
+  <!-- MAIN -->
+  <main class="container">
+    <section class="page-head">
+      <h1>Situation Analyzer</h1>
+      <p class="muted">Enter a situation or search penal codes. Inputs are fully interactive.</p>
+    </section>
 
-    <!-- REQUIRED ELEMENTS -->
-    <input
-      id="saSearch"
-      type="text"
-      placeholder="Search situations (traffic stop, shots fired...)"
-      autocomplete="off"
-    />
+    <div class="grid-2">
+      <!-- Situation Analyzer -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Situation Input</h2>
+          <div class="pill">Live</div>
+        </div>
 
-    <div id="saStatus" class="status-text"></div>
+        <label class="label" for="situationInput">Describe the situation</label>
+        <input
+          id="situationInput"
+          class="input"
+          type="text"
+          placeholder="Example: shots fired at Legion Square, suspect in black Sultan..."
+          autocomplete="off"
+        />
 
-    <div id="saTags" class="tag-bar"></div>
+        <div class="quick-row">
+          <button class="chip" data-fill="Shots fired">Shots Fired</button>
+          <button class="chip" data-fill="10-80 / Pursuit">Pursuit</button>
+          <button class="chip" data-fill="Robbery in progress">Robbery</button>
+          <button class="chip" data-fill="Officer down">Officer Down</button>
+        </div>
 
-    <div id="saResults" class="results-list"></div>
+        <div class="divider"></div>
+
+        <div class="card-subhead">
+          <h3>Recommended Response</h3>
+          <button class="btn" id="btnCopy" type="button">Copy</button>
+        </div>
+
+        <div id="analysisBox" class="output" aria-live="polite">
+          Awaiting input...
+        </div>
+
+        <div class="hint">
+          Tip: If you still can’t type, something is overlaying your page. This rewrite prevents that.
+        </div>
+      </section>
+
+      <!-- Penal Code Lookup -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Penal Code Lookup</h2>
+          <div class="pill">Search</div>
+        </div>
+
+        <label class="label" for="pcSearch">Search by code or name</label>
+        <input
+          id="pcSearch"
+          class="input"
+          type="text"
+          placeholder="Example: 2.1 or 'Brandishing' or 'Robbery'"
+          autocomplete="off"
+        />
+
+        <div class="row">
+          <button class="btn" id="btnClear" type="button">Clear</button>
+          <button class="btn ghost" id="btnReload" type="button">Reload Data</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="pc-results-head">
+          <div class="muted" id="pcCount">0 results</div>
+        </div>
+
+        <div id="pcResults" class="pc-results"></div>
+      </section>
+    </div>
   </main>
 
-  <!-- REQUIRED SCRIPT (must be at bottom) -->
-  <script type="module" src="assets/js/situation-analyzer.js"></script>
+  <footer class="footer">
+    <div class="muted">LSPD Portal • GitHub Pages Ready</div>
+  </footer>
+
+  <script src="assets/js/situation.js"></script>
 </body>
 </html>
-
