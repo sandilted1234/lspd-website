@@ -2,136 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Penal Code Lookup | LSPD</title>
+  <title>LSPD Penal Code Lookup</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Main Styles -->
-  <link rel="stylesheet" href="style.css" />
-
+  <!-- Basic Dark LSPD Style -->
   <style>
-    /* Extra page-specific polish */
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
     }
 
-    select {
+    header {
+      padding: 16px;
+      background: #020617;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 16px;
+    }
+
+    input {
       width: 100%;
-      padding: 10px;
-      background: #0f1a2b;
-      border: 1px solid #223458;
-      color: #fff;
+      padding: 14px;
+      font-size: 16px;
       border-radius: 6px;
+      border: none;
+      background: #020617;
+      color: #e5e7eb;
+      outline: none;
+    }
+
+    .status-text {
+      margin: 12px 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .result-card {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .result-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .result-id {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-left: 6px;
+    }
+
+    .result-desc {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 8px;
     }
 
     .pill {
-      background: #12213b;
-      border: 1px solid #1f335a;
-      padding: 4px 10px;
+      display: inline-block;
+      background: #1e293b;
+      padding: 4px 8px;
       border-radius: 999px;
-      font-size: 13px;
-    }
-
-    .stars {
-      color: gold;
-      letter-spacing: 1px;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-top: 6px;
     }
   </style>
 </head>
 
 <body>
-  <!-- TOP NAV -->
-  <div class="topbar">
-    <div class="nav container">
-      <div class="brand">
-        LSPD Portal <span class="badge">Grand RP</span>
-      </div>
-      <div class="links">
-        <a href="index.html">Home</a>
-        <a href="on-duty.html">On Duty</a>
-        <a class="active" href="penal-code.html">Penal Code</a>
-        <a href="situation-analyzer.html">Situation Analyzer</a>
-        <a href="traffic-parking.html">Traffic & Parking</a>
-        <a href="arrest-guide.html">Arrest Guide</a>
-        <a href="images-maps.html">Images & Maps</a>
-      </div>
-    </div>
-  </div>
+  <header>
+    <strong>Los Santos Police Department</strong>
+  </header>
 
-  <!-- CONTENT -->
-  <div class="container">
-    <div class="hero">
-      <h1>Penal Code Lookup</h1>
-      <p>
-        Search by <b>PC code</b>, <b>charge name</b>, or <b>keywords</b>.
-        Press <b>Enter</b> or click <b>Search</b>.
-      </p>
-    </div>
+  <main>
+    <h1>Penal Code Lookup</h1>
 
-    <!-- SEARCH + SELECTED -->
-    <div class="grid two">
-      <!-- SEARCH PANEL -->
-      <div class="card">
-        <h2>Search</h2>
+    <!-- REQUIRED ELEMENTS -->
+    <input
+      id="pcSearch"
+      type="text"
+      placeholder="Search Penal Code (robbery, PC-101, felony...)"
+      autocomplete="off"
+    />
 
-        <div class="row">
-          <input
-            id="pcSearch"
-            class="input"
-            placeholder="PC 2.10.6, evading, drugs, robbery..."
-          />
-          <button id="pcRun" class="btn">Search</button>
-        </div>
+    <div id="pcStatus" class="status-text"></div>
 
-        <div style="margin-top: 10px">
-          <select id="pcSort">
-            <option value="relevance">Sort: Relevance</option>
-            <option value="code">Sort: Code</option>
-            <option value="fine_desc">Sort: Fine (high → low)</option>
-            <option value="stars_desc">Sort: Stars (high → low)</option>
-          </select>
-        </div>
+    <div id="pcResults" class="results-grid"></div>
+  </main>
 
-        <div class="row" style="margin-top: 10px">
-          <button id="pcClear" class="btn ghost">Clear</button>
-        </div>
-
-        <div class="muted" style="margin-top: 10px">
-          Tip: Type partial words like <b>evad</b>, <b>coc</b>, <b>rob</b>.
-        </div>
-
-        <div id="pcDebug" class="muted" style="margin-top: 10px"></div>
-      </div>
-
-      <!-- SELECTED CHARGE -->
-      <div class="card">
-        <h2>Selected Charge</h2>
-        <div id="pcSelected" class="muted">
-          Click a charge from the list to view details.
-        </div>
-      </div>
-    </div>
-
-    <!-- RESULTS -->
-    <div class="card" style="margin-top: 16px">
-      <h2>Results</h2>
-      <div id="pcResults" class="result"></div>
-    </div>
-
-    <div class="footer-note">
-      Penal data loaded from <b>assets/data/penal_codes.json</b>
-    </div>
-  </div>
-
-  <!-- SCRIPTS -->
-  <script type="module">
-    import { setActiveNav } from "./assets/js/common.js";
-    import { initPenalPage } from "./assets/js/penal.js";
-
-    setActiveNav();
-    initPenalPage();
-  </script>
+  <!-- REQUIRED SCRIPT (must be at bottom) -->
+  <script type="module" src="assets/js/penal-code.js"></script>
 </body>
 </html>
-
